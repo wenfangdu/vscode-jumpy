@@ -1,4 +1,3 @@
-'use strict';
 import { ExtensionContext } from 'vscode';
 import { Jumpy } from './jumpy/mod';
 
