@@ -1,4 +1,7 @@
 import { ExtensionContext } from 'vscode';
+// @ts-ignore
+import matchAll from 'string.prototype.matchall';
+matchAll.shim();
 import { Jumpy } from './jumpy/mod';
 
 const jumpy = new Jumpy();
