@@ -14,6 +14,7 @@ import {
 import { getVisibleLines } from './get_lines';
 import { Settings } from './settings';
 import { ExtensionComponent, Nullable } from './typings';
+import { matchAll } from './_matchAll';
 
 const enum Command {
     Type = 'type',
@@ -268,7 +269,7 @@ export class Jumpy implements ExtensionComponent {
         const maxDecorations = this.settings.codes.length;
 
         for (let i = 0; i < linesCount && positionCount < maxDecorations; i++) {
-            for (const match of lines[i].text.matchAll(this.settings.wordRegexp)) {
+            for (const match of matchAll(lines[i].text, this.settings.wordRegexp)) {
                 if (positionCount >= maxDecorations) {
                     break;
                 }
