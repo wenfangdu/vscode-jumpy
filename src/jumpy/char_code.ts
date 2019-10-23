@@ -23,11 +23,26 @@ const ALL_ALLOWED_CHARS = [
 /* eslint-enable */
 
 function combineElements(arrA: string[], arrB: string[], callback: (s: string) => void): void {
+    const results: { text: string; i: number; j: number; t: number }[] = [];
+
     for (let i = 0; i < arrA.length; i++) {
         for (let j = 0; j < arrB.length; j++) {
-            callback(`${arrA[i]}${arrB[j]}`);
+            results.push({
+                i,
+                j,
+                text: arrA[i] + arrB[j],
+                t: i + j,
+            });
         }
     }
+
+    results
+        .sort((a, b) => {
+            if (a.t !== b.t) return a.t - b.t;
+            if (a.i !== b.i) return a.i - b.i;
+            return a.j - b.j;
+        })
+        .forEach((elem) => callback(elem.text));
 }
 
 export function createCharCodeSet(primaryCharacters = DEFAULT_PRIMARY_CHARS): string[] {
