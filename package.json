@@ -32,6 +32,7 @@
     "homepage": "https://github.com/krnik/vscode-jumpy/blob/master/README.md",
     "activationEvents": [
         "onCommand:extension.jumpy-enter",
+        "onCommand:extension.jumpy-enter-end-of-word",
         "onCommand:extension.jumpy-exit"
     ],
     "main": "./out/extension",
@@ -39,13 +40,23 @@
         "commands": [],
         "keybindings": [
             {
-                "key": "alt+q",
+                "key": "alt+j",
                 "command": "extension.jumpy-exit",
                 "when": "editorTextFocus && jumpy.isInJumpMode"
             },
             {
-                "key": "alt+q",
+                "key": "alt+k",
+                "command": "extension.jumpy-exit",
+                "when": "editorTextFocus && jumpy.isInJumpMode"
+            },
+            {
+                "key": "alt+j",
                 "command": "extension.jumpy-enter",
+                "when": "editorTextFocus && !jumpy.isInJumpMode"
+            },
+            {
+                "key": "alt+k",
+                "command": "extension.jumpy-enter-end-of-word",
                 "when": "editorTextFocus && !jumpy.isInJumpMode"
             }
         ],
@@ -68,6 +79,11 @@
                     "type": "string",
                     "default": "\\w{2,}",
                     "description": "The Regexp to use to match words in Jumpy Word Mode."
+                },
+                "jumpy.endOfWordRegexp": {
+                    "type": "string",
+                    "default": "(?<=\\w{2})(\\b|-|\\s)",
+                    "description": "The Regexp to use to match end of word in Jumpy Word Mode."
                 },
                 "jumpy.wordRegexpFlags": {
                     "type": "string",
