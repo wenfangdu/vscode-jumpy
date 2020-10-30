@@ -14,12 +14,12 @@ import {
 import { getVisibleLines } from './get_lines';
 import { Settings } from './settings';
 import { ExtensionComponent, Nullable } from './typings';
-import { matchAll } from './_matchAll';
 
 const enum Command {
     Type = 'type',
     Exit = 'extension.jumpy-exit',
     Enter = 'extension.jumpy-enter',
+    EnterEOW = 'extension.jumpy-enter-end-of-word',
 }
 
 const enum Event {
@@ -40,6 +40,7 @@ interface JumpPositionMap {
 
 interface StateJumpActive {
     isInJumpMode: true;
+    matchStartOfWord: boolean;
     editor: TextEditor;
     visibleRangesNotYetUpdated: boolean;
     typedCharacters: string;
@@ -47,6 +48,7 @@ interface StateJumpActive {
 
 interface StateJumpInactive {
     isInJumpMode: false;
+    matchStartOfWord: boolean;
     editor: undefined;
     visibleRangesNotYetUpdated: boolean;
     typedCharacters: string;
@@ -58,6 +60,7 @@ const HANDLE_NAMES = [
     Command.Type,
     Command.Exit,
     Command.Enter,
+    Command.EnterEOW,
     Event.ConfigChanged,
     Event.ActiveEditorChanged,
     Event.ActiveSelectionChanged,
@@ -69,6 +72,7 @@ const DEFAULT_STATE: State = {
     editor: undefined,
     visibleRangesNotYetUpdated: false,
     typedCharacters: '',
+    matchStartOfWord: true,
 };
 const TYPE_REGEX = /\w/;
 
@@ -81,6 +85,7 @@ export class Jumpy implements ExtensionComponent {
     public constructor() {
         this.state = {
             isInJumpMode: false,
+            matchStartOfWord: true,
             editor: undefined,
             visibleRangesNotYetUpdated: false,
             typedCharacters: '',
@@ -89,6 +94,7 @@ export class Jumpy implements ExtensionComponent {
             [Command.Type]: null,
             [Command.Exit]: null,
             [Command.Enter]: null,
+            [Command.EnterEOW]: null,
             [Event.ConfigChanged]: null,
             [Event.ActiveEditorChanged]: null,
             [Event.ActiveSelectionChanged]: null,
@@ -104,6 +110,9 @@ export class Jumpy implements ExtensionComponent {
         this.handles[Command.Enter] = commands.registerCommand(
             Command.Enter,
             this.handleEnterJumpMode,
+        );
+        this.handles[Command.EnterEOW] = commands.registerCommand(Command.EnterEOW, () =>
+            this.handleEnterJumpMode(false),
         );
         this.handles[Command.Exit] = commands.registerCommand(
             Command.Exit,
@@ -181,7 +190,7 @@ export class Jumpy implements ExtensionComponent {
         }
     }
 
-    private handleEnterJumpMode = (): void => {
+    private handleEnterJumpMode = (matchStartOfWord: boolean = true): void => {
         const activeEditor = window.activeTextEditor;
         if (activeEditor === undefined) {
             return;
@@ -190,6 +199,7 @@ export class Jumpy implements ExtensionComponent {
         this.setJumpyContext(true);
         this.handles[Command.Type] = commands.registerCommand(Command.Type, this.handleTypeEvent);
 
+        this.state.matchStartOfWord = matchStartOfWord;
         this.state.editor = activeEditor;
 
         this.showDecorations(this.state.editor);
@@ -261,6 +271,9 @@ export class Jumpy implements ExtensionComponent {
             return;
         }
 
+        const scanRegexp = this.state.matchStartOfWord
+            ? this.settings.wordRegexp
+            : this.settings.endOfWordRegexp;
         const decorationOptions: DecorationOptions[] = [];
 
         this.positions = {};
@@ -269,7 +282,7 @@ export class Jumpy implements ExtensionComponent {
         const maxDecorations = this.settings.codes.length;
 
         for (let i = 0; i < linesCount && positionCount < maxDecorations; i++) {
-            for (const match of matchAll(lines[i].text, this.settings.wordRegexp)) {
+            for (const match of lines[i].text.matchAll(scanRegexp)) {
                 if (positionCount >= maxDecorations) {
                     break;
                 }

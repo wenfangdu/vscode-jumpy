@@ -21,6 +21,7 @@ const enum Setting {
     UseIcons = 'useIcons',
     WordRegexp = 'wordRegexp',
     WordRegexpFlags = 'wordRegexpFlags',
+    WordRegexpEndOfWord = 'wordRegexpEndOfWord',
     PrimaryCharset = 'primaryCharset',
     FontFamily = 'fontFamily',
     FontSize = 'fontSize',
@@ -45,6 +46,7 @@ interface DecorationOptions {
 // Default values
 const DEFAULT_REGEX_FLAGS = 'gi';
 const DEFAULT_JUMP_REGEXP = /\w{2,}/g;
+const DEFAUlT_JUMP_REGEXP_EOW = /\w{2}\b/g;
 
 const DATA_URI = Uri.parse('data:');
 
@@ -57,6 +59,7 @@ export class Settings implements ExtensionComponent {
     public codes: string[];
     public decorationType: TextEditorDecorationType;
     public wordRegexp: RegExp;
+    public endOfWordRegexp: RegExp;
     public charOffset: number;
 
     public constructor() {
@@ -65,6 +68,7 @@ export class Settings implements ExtensionComponent {
         this.codeOptions = new Map();
         this.codes = [];
         this.wordRegexp = DEFAULT_JUMP_REGEXP;
+        this.endOfWordRegexp = DEFAUlT_JUMP_REGEXP_EOW;
         this.charOffset = 0;
     }
 
@@ -151,10 +155,15 @@ export class Settings implements ExtensionComponent {
     private buildWordRegexp(): void {
         const jumpyConfig = workspace.getConfiguration(SettingNamespace.Jumpy);
         const userWordRegex = jumpyConfig[Setting.WordRegexp];
+        const userEndOfWordRegex = jumpyConfig[Setting.WordRegexpEndOfWord];
+        const userWordRegexFlags = jumpyConfig[Setting.WordRegexpFlags] || DEFAULT_REGEX_FLAGS;
 
         if (userWordRegex != null && userWordRegex.length > 0) {
-            const userWordRegexFlags = jumpyConfig[Setting.WordRegexpFlags] || DEFAULT_REGEX_FLAGS;
             this.wordRegexp = new RegExp(userWordRegex, userWordRegexFlags);
+        }
+
+        if (userEndOfWordRegex != null && userEndOfWordRegex.length > 0) {
+            this.endOfWordRegexp = new RegExp(userEndOfWordRegex, userWordRegexFlags);
         }
     }
 
