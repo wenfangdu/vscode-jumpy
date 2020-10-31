@@ -46,7 +46,7 @@ interface DecorationOptions {
 // Default values
 const DEFAULT_REGEX_FLAGS = 'gi';
 const DEFAULT_JUMP_REGEXP = /\w{2,}/g;
-const DEFAUlT_JUMP_REGEXP_EOW = /\w{2}\b/g;
+const DEFAUlT_JUMP_REGEXP_EOW = /(?<=\w{2})(\b|-|\s)/gi;
 
 const DATA_URI = Uri.parse('data:');
 
