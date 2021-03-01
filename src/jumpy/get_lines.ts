@@ -13,15 +13,14 @@ export function getVisibleLines(editor: TextEditor): null | TextLine[] {
         }
     }
 
-    const activeLineIndex = visibleLineNumbers.indexOf(selection.start.line);
-    if (activeLineIndex === -1) {
-        return null;
-    }
+    const cursorLineIndex = visibleLineNumbers.indexOf(selection.start.line);
+    const startLineIndex =
+        cursorLineIndex === -1 ? Math.floor(visibleLineNumbers.length / 2) : cursorLineIndex;
 
-    let leftIndex = activeLineIndex - 1;
-    let rightIndex = activeLineIndex + 1;
+    let leftIndex = startLineIndex - 1;
+    let rightIndex = startLineIndex + 1;
 
-    const visibleLines: TextLine[] = [document.lineAt(visibleLineNumbers[activeLineIndex])];
+    const visibleLines: TextLine[] = [document.lineAt(visibleLineNumbers[startLineIndex])];
     const maxRightIndex = visibleLineNumbers.length;
 
     while (leftIndex > -1 || rightIndex < maxRightIndex) {

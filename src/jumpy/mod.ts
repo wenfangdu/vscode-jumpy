@@ -42,7 +42,6 @@ interface StateJumpActive {
     isInJumpMode: true;
     matchStartOfWord: boolean;
     editor: TextEditor;
-    visibleRangesNotYetUpdated: boolean;
     typedCharacters: string;
 }
 
@@ -50,7 +49,6 @@ interface StateJumpInactive {
     isInJumpMode: false;
     matchStartOfWord: boolean;
     editor: undefined;
-    visibleRangesNotYetUpdated: boolean;
     typedCharacters: string;
 }
 
@@ -70,11 +68,33 @@ const NO_DECORATIONS: DecorationOptions[] = [];
 const DEFAULT_STATE: State = {
     isInJumpMode: false,
     editor: undefined,
-    visibleRangesNotYetUpdated: false,
     typedCharacters: '',
     matchStartOfWord: true,
 };
 const TYPE_REGEX = /\w/;
+
+function withDelay(
+    _proto: object,
+    _key: string | symbol,
+    descriptor: TypedPropertyDescriptor<() => void>,
+): void {
+    let timeoutId: NodeJS.Timeout | null = null;
+    const value = descriptor.value;
+
+    if (typeof value !== 'function') {
+        return;
+    }
+
+    descriptor.value = function decorated(this: Jumpy): void {
+        if (timeoutId) {
+            clearTimeout(timeoutId);
+        }
+        timeoutId = setTimeout((): void => {
+            timeoutId = null;
+            value.call(this);
+        }, 80);
+    };
+}
 
 export class Jumpy implements ExtensionComponent {
     private handles: Record<Command | Event, Nullable<Disposable>>;
@@ -87,7 +107,6 @@ export class Jumpy implements ExtensionComponent {
             isInJumpMode: false,
             matchStartOfWord: true,
             editor: undefined,
-            visibleRangesNotYetUpdated: false,
             typedCharacters: '',
         };
         this.handles = {
@@ -145,27 +164,26 @@ export class Jumpy implements ExtensionComponent {
         if (this.state.isInJumpMode) {
             this.setDecorations(this.state.editor, NO_DECORATIONS);
             this.settings.handleConfigurationChange(event);
-            this.showDecorations(this.state.editor);
+            this.showDecorations();
         } else {
             this.settings.handleConfigurationChange(event);
         }
     };
 
     private handleVisibleRangesChange = (_event: TextEditorVisibleRangesChangeEvent): void => {
-        if (!this.state.isInJumpMode || !this.state.visibleRangesNotYetUpdated) {
+        if (!this.state.isInJumpMode) {
             return;
         }
 
-        this.showDecorations(this.state.editor);
-        this.state.visibleRangesNotYetUpdated = false;
+        this.showDecorations();
     };
 
     private handleSelectionChange = (_event: TextEditorSelectionChangeEvent): void => {
-        if (!this.state.isInJumpMode || this.state.visibleRangesNotYetUpdated) {
+        if (!this.state.isInJumpMode) {
             return;
         }
 
-        this.showDecorations(this.state.editor);
+        this.showDecorations();
     };
 
     private handleEditorChange = (editor: TextEditor | undefined): void => {
@@ -178,7 +196,7 @@ export class Jumpy implements ExtensionComponent {
         } else {
             this.setDecorations(this.state.editor, NO_DECORATIONS);
             this.state.editor = editor;
-            this.showDecorations(this.state.editor);
+            this.showDecorations();
         }
     };
 
@@ -190,7 +208,7 @@ export class Jumpy implements ExtensionComponent {
         }
     }
 
-    private handleEnterJumpMode = (matchStartOfWord: boolean = true): void => {
+    private handleEnterJumpMode = (matchStartOfWord = true): void => {
         const activeEditor = window.activeTextEditor;
         if (activeEditor === undefined) {
             return;
@@ -202,7 +220,7 @@ export class Jumpy implements ExtensionComponent {
         this.state.matchStartOfWord = matchStartOfWord;
         this.state.editor = activeEditor;
 
-        this.showDecorations(this.state.editor);
+        this.showDecorations();
     };
 
     private handleExitJumpMode = (): void => {
@@ -263,11 +281,12 @@ export class Jumpy implements ExtensionComponent {
         }
     }
 
-    private showDecorations(editor: TextEditor): void {
-        const lines = getVisibleLines(editor);
+    @withDelay
+    private showDecorations(): void {
+        const editor = this.state.editor || null;
+        const lines = editor && getVisibleLines(editor);
 
-        if (lines === null) {
-            this.state.visibleRangesNotYetUpdated = true;
+        if (!editor || lines === null) {
             return;
         }
 
