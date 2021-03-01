@@ -85,14 +85,18 @@ function withDelay(
         return;
     }
 
-    descriptor.value = function decorated(this: Jumpy): void {
+    descriptor.value = function decorated(this: Jumpy, forceInvocation = true): void {
         if (timeoutId) {
             clearTimeout(timeoutId);
+        }
+        if (forceInvocation) {
+            timeoutId = null;
+            return value.call(this);
         }
         timeoutId = setTimeout((): void => {
             timeoutId = null;
             value.call(this);
-        }, 80);
+        }, 300);
     };
 }
 
@@ -175,7 +179,7 @@ export class Jumpy implements ExtensionComponent {
             return;
         }
 
-        this.showDecorations();
+        this.showDecorations(false);
     };
 
     private handleSelectionChange = (_event: TextEditorSelectionChangeEvent): void => {
@@ -282,7 +286,7 @@ export class Jumpy implements ExtensionComponent {
     }
 
     @withDelay
-    private showDecorations(): void {
+    private showDecorations(_forceInvocation = true): void {
         const editor = this.state.editor || null;
         const lines = editor && getVisibleLines(editor);
 
