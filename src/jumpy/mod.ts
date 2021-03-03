@@ -3,6 +3,7 @@ import {
     ConfigurationChangeEvent,
     DecorationOptions,
     Disposable,
+    Position,
     Range,
     Selection,
     TextEditor,
@@ -20,6 +21,8 @@ const enum Command {
     Exit = 'extension.jumpy-exit',
     Enter = 'extension.jumpy-enter',
     EnterEOW = 'extension.jumpy-enter-end-of-word',
+    EnterSelect = 'extension.jumpy-enter-select',
+    EntereSelectEOW = 'extension.jumpy-enter-select-end-of-word',
 }
 
 const enum Event {
@@ -41,6 +44,7 @@ interface JumpPositionMap {
 interface StateJumpActive {
     isInJumpMode: true;
     matchStartOfWord: boolean;
+    expandSelection: boolean;
     editor: TextEditor;
     typedCharacters: string;
 }
@@ -48,6 +52,7 @@ interface StateJumpActive {
 interface StateJumpInactive {
     isInJumpMode: false;
     matchStartOfWord: boolean;
+    expandSelection: boolean;
     editor: undefined;
     typedCharacters: string;
 }
@@ -59,6 +64,8 @@ const HANDLE_NAMES = [
     Command.Exit,
     Command.Enter,
     Command.EnterEOW,
+    Command.EnterSelect,
+    Command.EntereSelectEOW,
     Event.ConfigChanged,
     Event.ActiveEditorChanged,
     Event.ActiveSelectionChanged,
@@ -70,6 +77,7 @@ const DEFAULT_STATE: State = {
     editor: undefined,
     typedCharacters: '',
     matchStartOfWord: true,
+    expandSelection: false,
 };
 const TYPE_REGEX = /\w/;
 
@@ -110,6 +118,7 @@ export class Jumpy implements ExtensionComponent {
         this.state = {
             isInJumpMode: false,
             matchStartOfWord: true,
+            expandSelection: false,
             editor: undefined,
             typedCharacters: '',
         };
@@ -118,6 +127,8 @@ export class Jumpy implements ExtensionComponent {
             [Command.Exit]: null,
             [Command.Enter]: null,
             [Command.EnterEOW]: null,
+            [Command.EnterSelect]: null,
+            [Command.EntereSelectEOW]: null,
             [Event.ConfigChanged]: null,
             [Event.ActiveEditorChanged]: null,
             [Event.ActiveSelectionChanged]: null,
@@ -130,16 +141,22 @@ export class Jumpy implements ExtensionComponent {
     public activate(): void {
         this.settings.activate();
 
-        this.handles[Command.Enter] = commands.registerCommand(
-            Command.Enter,
-            this.handleEnterJumpMode,
+        this.handles[Command.Enter] = commands.registerCommand(Command.Enter, () =>
+            this.handleEnterJumpMode(true, false),
         );
         this.handles[Command.EnterEOW] = commands.registerCommand(Command.EnterEOW, () =>
-            this.handleEnterJumpMode(false),
+            this.handleEnterJumpMode(false, false),
         );
         this.handles[Command.Exit] = commands.registerCommand(
             Command.Exit,
             this.handleExitJumpMode,
+        );
+        this.handles[Command.EnterSelect] = commands.registerCommand(Command.EnterSelect, () =>
+            this.handleEnterJumpMode(true, true),
+        );
+        this.handles[Command.EntereSelectEOW] = commands.registerCommand(
+            Command.EntereSelectEOW,
+            () => this.handleEnterJumpMode(false, true),
         );
         this.handles[Event.ConfigChanged] = workspace.onDidChangeConfiguration(
             this.handleConfigChange,
@@ -212,7 +229,7 @@ export class Jumpy implements ExtensionComponent {
         }
     }
 
-    private handleEnterJumpMode = (matchStartOfWord = true): void => {
+    private handleEnterJumpMode = (matchStartOfWord = true, expandSelection = false): void => {
         const activeEditor = window.activeTextEditor;
         if (activeEditor === undefined) {
             return;
@@ -222,6 +239,7 @@ export class Jumpy implements ExtensionComponent {
         this.handles[Command.Type] = commands.registerCommand(Command.Type, this.handleTypeEvent);
 
         this.state.matchStartOfWord = matchStartOfWord;
+        this.state.expandSelection = expandSelection;
         this.state.editor = activeEditor;
 
         this.showDecorations();
@@ -250,8 +268,6 @@ export class Jumpy implements ExtensionComponent {
             return;
         }
 
-        // Should it allow expanding selection from current selection to the targeted marker
-        // if the key was pressed with [Shift]?
         const code = this.state.typedCharacters + type.text.toLowerCase();
         const position = this.positions[code];
 
@@ -261,12 +277,18 @@ export class Jumpy implements ExtensionComponent {
             return;
         }
 
-        this.state.editor.selection = new Selection(
-            position.line,
-            position.char,
-            position.line,
-            position.char,
-        );
+        if (this.state.expandSelection) {
+            const anchor = this.state.editor.selection.anchor;
+            const active = new Position(position.line, position.char);
+            this.state.editor.selection = new Selection(anchor, active);
+        } else {
+            this.state.editor.selection = new Selection(
+                position.line,
+                position.char,
+                position.line,
+                position.char,
+            );
+        }
 
         this.handleExitJumpMode();
     };
