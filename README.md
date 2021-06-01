@@ -119,6 +119,8 @@ Jumpy settings can be configured by adding entries into your `settings.json` (Fi
 [Create an issue](https://github.com/krnik/vscode-jumpy/issues)
 
 ## Changelog
+- `1.0.4`
+    - Ignore duplicated `primaryCharset` characters [#6](https://github.com/krnik/vscode-jumpy/issues/6).
 - `1.0.3`
     - Added `shift+alt+j`/`shift+alt+k` keybindings which map to the commands allowing user to expand selection rather than change the cursor location.
     - Detached the decoration positions from the cursor position. Now, the decoration can appear on the screen even if the cursor is not in the visible range.
