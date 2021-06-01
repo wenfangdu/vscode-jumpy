@@ -45,8 +45,12 @@ function combineElements(arrA: string[], arrB: string[], callback: (s: string) =
         .forEach((elem) => callback(elem.text));
 }
 
+function deduplicate(chars: string[]): string[] {
+    return Array.from(new Set(chars).values());
+}
+
 export function createCharCodeSet(primaryCharacters = DEFAULT_PRIMARY_CHARS): string[] {
-    const primaryChars = primaryCharacters.filter((char) => ALL_ALLOWED_CHARS.includes(char));
+    const primaryChars = deduplicate(primaryCharacters.filter((char) => ALL_ALLOWED_CHARS.includes(char)));
     const secondaryChars = ALL_ALLOWED_CHARS.filter((char) => !primaryChars.includes(char));
 
     const codeSet: string[] = [];
