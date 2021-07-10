@@ -43,43 +43,38 @@
         "keybindings": [
             {
                 "key": "alt+j",
-                "command": "extension.jumpy-exit",
-                "when": "editorTextFocus && jumpy.isInJumpMode"
-            },
-            {
-                "key": "alt+k",
-                "command": "extension.jumpy-exit",
-                "when": "editorTextFocus && jumpy.isInJumpMode"
-            },
-            {
-                "key": "alt+j",
                 "command": "extension.jumpy-enter",
-                "when": "editorTextFocus && !jumpy.isInJumpMode"
+                "when": "editorTextFocus"
             },
             {
                 "key": "alt+k",
                 "command": "extension.jumpy-enter-end-of-word",
-                "when": "editorTextFocus && !jumpy.isInJumpMode"
-            },
-            {
-                "key": "shift+alt+j",
-                "command": "extension.jumpy-exit",
-                "when": "editorTextFocus && jumpy.isInJumpMode"
-            },
-            {
-                "key": "shift+alt+k",
-                "command": "extension.jumpy-exit",
-                "when": "editorTextFocus && jumpy.isInJumpMode"
+                "when": "editorTextFocus"
             },
             {
                 "key": "shift+alt+j",
                 "command": "extension.jumpy-enter-select",
-                "when": "editorTextFocus && !jumpy.isInJumpMode"
+                "when": "editorTextFocus"
             },
             {
                 "key": "shift+alt+k",
                 "command": "extension.jumpy-enter-select-end-of-word",
-                "when": "editorTextFocus && !jumpy.isInJumpMode"
+                "when": "editorTextFocus"
+            },
+            {
+                "key": "escape",
+                "command": "extension.jumpy-exit",
+                "when": "editorTextFocus && jumpy.isInJumpMode"
+            },
+            {
+                "key": "space",
+                "command": "extension.jumpy-exit",
+                "when": "editorTextFocus && jumpy.isInJumpMode"
+            },
+            {
+                "key": "enter",
+                "command": "extension.jumpy-exit",
+                "when": "editorTextFocus && jumpy.isInJumpMode"
             }
         ],
         "configuration": {
