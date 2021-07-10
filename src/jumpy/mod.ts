@@ -230,6 +230,17 @@ export class Jumpy implements ExtensionComponent {
     }
 
     private handleEnterJumpMode = (matchStartOfWord = true, expandSelection = false): void => {
+        if (this.state.isInJumpMode) {
+            if (
+                this.state.matchStartOfWord === matchStartOfWord &&
+                this.state.expandSelection === expandSelection
+            ) {
+                return this.handleExitJumpMode();
+            } else {
+                this.handleExitJumpMode();
+            }
+        }
+
         const activeEditor = window.activeTextEditor;
         if (activeEditor === undefined) {
             return;
