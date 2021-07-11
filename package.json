@@ -83,7 +83,8 @@
             "properties": {
                 "jumpy.primaryCharset": {
                     "type": "string",
-                    "pattern": "[a-z0-9]",
+                    "pattern": "^(?:([a-z0-9])(?!.*\\1))+$",
+                    "patternErrorMessage": "Please enter unique characters from [a-z0-9].",
                     "default": "qwerasdf1234zxcv",
                     "description": "Set of characters used to create jump key combinations. First letters will occur the closes to the current active line."
                 },
