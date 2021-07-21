@@ -1,19 +1,6 @@
 # Jumpy Extension for Visual Studio Code
 
-## Installation
-Because I lost my publisher credentials I am no longer able to publish updates to the VSCode Marketplace.
-Therefore, in order to use the newest version of this plugin you have to install it manually.
-
-#### Building
-Those steps will generate `.vsix` file in the `vscode-jumpy` directory.
-```
-git clone https://github.com/krnik/vscode-jumpy.git
-cd vscode-jumpy
-npm i
-npx vsce package
-```
-#### Manual Installation:
-From VSCode command pallete run `Extensions: Install from VSIX` command and select the built `.vsix` file.
+## DEPRECATION NOTICE: FOR THE LATEST UPDATES, PLEASE USE [JUMP](https://marketplace.visualstudio.com/items?itemName=wenfangdu.jump) INSTEAD.
 
 ## Feature Overview
 
@@ -28,48 +15,57 @@ Jumpy provides fast cursor movement, inspired by Atom's package of the same name
 
 ```json
 [
-    { // Exit jump mode.
+    {
+        // Exit jump mode.
         "key": "alt+j",
-            "command": "extension.jumpy-exit",
-            "when": "editorTextFocus && jumpy.isInJumpMode"
+        "command": "extension.jumpy-exit",
+        "when": "editorTextFocus && jumpy.isInJumpMode"
     },
-    { // Exit jump mode.
+    {
+        // Exit jump mode.
         "key": "alt+k",
         "command": "extension.jumpy-exit",
         "when": "editorTextFocus && jumpy.isInJumpMode"
     },
-    { // Enter jump to the start of the word mode.
+    {
+        // Enter jump to the start of the word mode.
         "key": "alt+j",
         "command": "extension.jumpy-enter",
         "when": "editorTextFocus && !jumpy.isInJumpMode"
     },
-    { // Enter jump to the end of the word mode.
+    {
+        // Enter jump to the end of the word mode.
         "key": "alt+k",
         "command": "extension.jumpy-enter-end-of-word",
         "when": "editorTextFocus && !jumpy.isInJumpMode"
     },
-    { // Exit jump mode.
+    {
+        // Exit jump mode.
         "key": "shift+alt+j",
         "command": "extension.jumpy-exit",
         "when": "editorTextFocus && jumpy.isInJumpMode"
     },
-    { // Exit jump mode.
+    {
+        // Exit jump mode.
         "key": "shift+alt+k",
         "command": "extension.jumpy-exit",
         "when": "editorTextFocus && jumpy.isInJumpMode"
     },
-    { // Enter expand selection mode to the start of the word.
+    {
+        // Enter expand selection mode to the start of the word.
         "key": "shift+alt+j",
         "command": "extension.jumpy-enter-select",
         "when": "editorTextFocus && !jumpy.isInJumpMode"
     },
-    { // Enter expand selection mode to the end of the word.
+    {
+        // Enter expand selection mode to the end of the word.
         "key": "shift+alt+k",
         "command": "extension.jumpy-enter-select-end-of-word",
         "when": "editorTextFocus && !jumpy.isInJumpMode"
     }
 ]
 ```
+
 </details>
 
 To set up the keybindings like Atom (`Shift+Enter`), add the following to your `keybindings.json` (File/Code -> Preferences -> Keyboard Shortcuts):
@@ -119,8 +115,9 @@ Jumpy settings can be configured by adding entries into your `settings.json` (Fi
 [Create an issue](https://github.com/krnik/vscode-jumpy/issues)
 
 ## Changelog
-- `1.0.4`
-    - Ignore duplicated `primaryCharset` characters [#6](https://github.com/krnik/vscode-jumpy/issues/6).
-- `1.0.3`
-    - Added `shift+alt+j`/`shift+alt+k` keybindings which map to the commands allowing user to expand selection rather than change the cursor location.
-    - Detached the decoration positions from the cursor position. Now, the decoration can appear on the screen even if the cursor is not in the visible range.
+
+-   `1.0.4`
+    -   Ignore duplicated `primaryCharset` characters [#6](https://github.com/krnik/vscode-jumpy/issues/6).
+-   `1.0.3`
+    -   Added `shift+alt+j`/`shift+alt+k` keybindings which map to the commands allowing user to expand selection rather than change the cursor location.
+    -   Detached the decoration positions from the cursor position. Now, the decoration can appear on the screen even if the cursor is not in the visible range.
