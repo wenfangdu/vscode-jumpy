@@ -1,7 +1,8 @@
 {
-    trailingComma: 'all',
-    singleQuote: true,
-    printWidth: 100,
-    tabWidth: 4,
-    arrowParens: 'always',
+    "arrowParens": "always",
+    "endOfLine": "auto",
+    "printWidth": 100,
+    "singleQuote": true,
+    "tabWidth": 4,
+    "trailingComma": "all"
 }

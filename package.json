@@ -86,7 +86,7 @@
                     "pattern": "^(?:([a-z0-9])(?!.*\\1))+$",
                     "patternErrorMessage": "Please enter unique characters from [a-z0-9].",
                     "default": "qwerasdf1234zxcv",
-                    "description": "Set of characters used to create jump key combinations. First letters will occur the closes to the current active line."
+                    "description": "Set of characters used to create jump key combinations. The first letters will occur the closest to the active line."
                 },
                 "jumpy.useIcons": {
                     "type": "boolean",
@@ -122,11 +122,11 @@
         }
     },
     "scripts": {
-        "vscode:prepublish": "npm run compile",
         "compile": "tsc -p ./tsconfig.json",
         "watch": "tsc --watch",
+        "lint": "eslint --fix ./src/**/*",
         "test": "npm run compile && node ./node_modules/vscode/bin/test",
-        "format": "eslint --fix ./src/**/*"
+        "vscode:prepublish": "npm run compile"
     },
     "devDependencies": {
         "@types/mocha": "5.2.7",
